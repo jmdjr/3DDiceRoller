@@ -1,7 +1,6 @@
 "use strict";
 
 (function(dice) {
-
     var random_storage = [];
     this.use_true_random = true;
     this.frame_rate = 1 / 60;
@@ -174,89 +173,6 @@
         return materials;
     }
 
-    var d4_labels = [
-        [[], [0, 0, 0], [2, 4, 3], [1, 3, 4], [2, 1, 4], [1, 2, 3]],
-        [[], [0, 0, 0], [2, 3, 4], [3, 1, 4], [2, 4, 1], [3, 2, 1]],
-        [[], [0, 0, 0], [4, 3, 2], [3, 4, 1], [4, 2, 1], [3, 1, 2]],
-        [[], [0, 0, 0], [4, 2, 3], [1, 4, 3], [4, 1, 2], [1, 3, 2]]
-    ];
-
-    this.create_d4_materials = function(size, margin, labels) {
-        function create_d4_text(text, color, back_color) {
-            var canvas = document.createElement("canvas");
-            var context = canvas.getContext("2d");
-            var ts = calc_texture_size(size + margin) * 2;
-            canvas.width = canvas.height = ts;
-            context.font = (ts - margin) / 1.5 + "pt Arial";
-            context.fillStyle = back_color;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            context.textAlign = "center";
-            context.textBaseline = "middle";
-            context.fillStyle = color;
-            for (var i in text) {
-                context.fillText(text[i], canvas.width / 2,
-                        canvas.height / 2 - ts * 0.3);
-                context.translate(canvas.width / 2, canvas.height / 2);
-                context.rotate(Math.PI * 2 / 3);
-                context.translate(-canvas.width / 2, -canvas.height / 2);
-            }
-            var texture = new THREE.Texture(canvas);
-            texture.needsUpdate = true;
-            return texture;
-        }
-        var materials = [];
-        for (var i = 0; i < labels.length; ++i)
-            materials.push(new THREE.MeshPhongMaterial($t.copyto(this.material_options,
-                        { map: create_d4_text(labels[i], this.label_color, this.dice_color) })));
-        return materials;
-    }
-
-    this.create_d4_geometry = function(radius) {
-        var vertices = [[1, 1, 1], [-1, -1, 1], [-1, 1, -1], [1, -1, -1]];
-        var faces = [[1, 0, 2, 1], [0, 1, 3, 2], [0, 3, 2, 3], [1, 2, 3, 4]];
-        return create_geom(vertices, faces, radius, -0.1, Math.PI * 7 / 6, 0.96);
-    }
-
-    this.create_d6_geometry = function(radius) {
-        var vertices = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
-                [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
-        var faces = [[0, 3, 2, 1, 1], [1, 2, 6, 5, 2], [0, 1, 5, 4, 3],
-                [3, 7, 6, 2, 4], [0, 4, 7, 3, 5], [4, 5, 6, 7, 6]];
-        return create_geom(vertices, faces, radius, 0.1, Math.PI / 4, 0.96);
-    }
-
-    this.create_d8_geometry = function(radius) {
-        var vertices = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
-        var faces = [[0, 2, 4, 1], [0, 4, 3, 2], [0, 3, 5, 3], [0, 5, 2, 4], [1, 3, 4, 5],
-                [1, 4, 2, 6], [1, 2, 5, 7], [1, 5, 3, 8]];
-        return create_geom(vertices, faces, radius, 0, -Math.PI / 4 / 2, 0.965);
-    }
-
-    this.create_d10_geometry = function(radius) {
-        var a = Math.PI * 2 / 10, k = Math.cos(a), h = 0.105, v = -1;
-        var vertices = [];
-        for (var i = 0, b = 0; i < 10; ++i, b += a)
-            vertices.push([Math.cos(b), Math.sin(b), h * (i % 2 ? 1 : -1)]);
-        vertices.push([0, 0, -1]); vertices.push([0, 0, 1]);
-        var faces = [[5, 7, 11, 0], [4, 2, 10, 1], [1, 3, 11, 2], [0, 8, 10, 3], [7, 9, 11, 4],
-                [8, 6, 10, 5], [9, 1, 11, 6], [2, 0, 10, 7], [3, 5, 11, 8], [6, 4, 10, 9],
-                [1, 0, 2, v], [1, 2, 3, v], [3, 2, 4, v], [3, 4, 5, v], [5, 4, 6, v],
-                [5, 6, 7, v], [7, 6, 8, v], [7, 8, 9, v], [9, 8, 0, v], [9, 0, 1, v]];
-        return create_geom(vertices, faces, radius, 0, Math.PI * 6 / 5, 0.945);
-    }
-
-    this.create_d12_geometry = function(radius) {
-        var p = (1 + Math.sqrt(5)) / 2, q = 1 / p;
-        var vertices = [[0, q, p], [0, q, -p], [0, -q, p], [0, -q, -p], [p, 0, q],
-                [p, 0, -q], [-p, 0, q], [-p, 0, -q], [q, p, 0], [q, -p, 0], [-q, p, 0],
-                [-q, -p, 0], [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1], [-1, 1, 1],
-                [-1, 1, -1], [-1, -1, 1], [-1, -1, -1]];
-        var faces = [[2, 14, 4, 12, 0, 1], [15, 9, 11, 19, 3, 2], [16, 10, 17, 7, 6, 3], [6, 7, 19, 11, 18, 4],
-                [6, 18, 2, 0, 16, 5], [18, 11, 9, 14, 2, 6], [1, 17, 10, 8, 13, 7], [1, 13, 5, 15, 3, 8],
-                [13, 8, 12, 4, 5, 9], [5, 4, 14, 9, 15, 10], [0, 12, 8, 10, 16, 11], [3, 19, 7, 17, 1, 12]];
-        return create_geom(vertices, faces, radius, 0.2, -Math.PI / 4 / 2, 0.968);
-    }
-
     this.create_d20_geometry = function(radius) {
         var t = (1 + Math.sqrt(5)) / 2;
         var vertices = [[-1, t, 0], [1, t, 0 ], [-1, -t, 0], [1, -t, 0],
@@ -275,6 +191,7 @@
         shininess: 40,
         shading: THREE.FlatShading,
     };
+    
     this.label_color = '#aaaaaa';
     this.dice_color = '#202020';
     this.ambient_light_color = 0xf0f5fb;
@@ -291,53 +208,11 @@
 
     this.scale = 50;
 
-    this.create_d4 = function() {
-        if (!this.d4_geometry) this.d4_geometry = this.create_d4_geometry(this.scale * 1.2);
-        if (!this.d4_material) this.d4_material = new THREE.MeshFaceMaterial(
-                this.create_d4_materials(this.scale / 2, this.scale * 2, d4_labels[0]));
-        return new THREE.Mesh(this.d4_geometry, this.d4_material);
-    }
-
-    this.create_d6 = function() {
-        if (!this.d6_geometry) this.d6_geometry = this.create_d6_geometry(this.scale * 0.9);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                this.create_dice_materials(this.standart_d20_dice_face_labels, this.scale / 2, 1.0));
-        return new THREE.Mesh(this.d6_geometry, this.dice_material);
-    }
-
-    this.create_d8 = function() {
-        if (!this.d8_geometry) this.d8_geometry = this.create_d8_geometry(this.scale);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                this.create_dice_materials(this.standart_d20_dice_face_labels, this.scale / 2, 1.2));
-        return new THREE.Mesh(this.d8_geometry, this.dice_material);
-    }
-
-    this.create_d10 = function() {
-        if (!this.d10_geometry) this.d10_geometry = this.create_d10_geometry(this.scale * 0.9);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                this.create_dice_materials(this.standart_d20_dice_face_labels, this.scale / 2, 1.0));
-        return new THREE.Mesh(this.d10_geometry, this.dice_material);
-    }
-
-    this.create_d12 = function() {
-        if (!this.d12_geometry) this.d12_geometry = this.create_d12_geometry(this.scale * 0.9);
-        if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
-                this.create_dice_materials(this.standart_d20_dice_face_labels, this.scale / 2, 1.0));
-        return new THREE.Mesh(this.d12_geometry, this.dice_material);
-    }
-
     this.create_d20 = function() {
         if (!this.d20_geometry) this.d20_geometry = this.create_d20_geometry(this.scale);
         if (!this.dice_material) this.dice_material = new THREE.MeshFaceMaterial(
                 this.create_dice_materials(this.standart_d20_dice_face_labels, this.scale / 2, 1.0));
         return new THREE.Mesh(this.d20_geometry, this.dice_material);
-    }
-
-    this.create_d100 = function() {
-        if (!this.d10_geometry) this.d10_geometry = this.create_d10_geometry(this.scale * 0.9);
-        if (!this.d100_material) this.d100_material = new THREE.MeshFaceMaterial(
-                this.create_dice_materials(this.standart_d100_dice_face_labels, this.scale / 2, 1.5));
-        return new THREE.Mesh(this.d10_geometry, this.d100_material);
     }
 
     this.parse_notation = function(notation) {
