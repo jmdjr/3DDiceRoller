@@ -811,7 +811,6 @@ export class DiceColors {
 
 	ImageLoader(sources, callback) {
 		let images = {};
-		let bumpmaps = {};
 		let loadedImages = 0;
 		let numImages = 0;
 
@@ -972,7 +971,6 @@ export class DiceColors {
 					material = colordata.texture.data.material || '';
 				}
 			}
-
 		}
 
 		if (texture != '') DiceRoller.DiceFactory.applyTexture(this.getTexture(texture));
