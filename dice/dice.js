@@ -193,7 +193,7 @@
     };
     
     this.label_color = '#aaaaaa';
-    this.dice_color = '#202020';
+    this.dice_color = '#000000';
     this.ambient_light_color = 0xf0f5fb;
     this.spot_light_color = 0xefdfd5;
     this.selector_back_colors = { color: 0x404040, shininess: 0, emissive: 0x858787 };
@@ -206,7 +206,7 @@
     this.dice_mass = { 'd4': 300, 'd6': 300, 'd8': 340, 'd10': 350, 'd12': 350, 'd20': 400, 'd100': 350 };
     this.dice_inertia = { 'd4': 5, 'd6': 13, 'd8': 10, 'd10': 9, 'd12': 8, 'd20': 6, 'd100': 9 };
 
-    this.scale = 50;
+    this.scale = 75;
 
     this.create_d20 = function() {
         if (!this.d20_geometry) this.d20_geometry = this.create_d20_geometry(this.scale);
@@ -331,7 +331,7 @@
             this.h = this.ch;
         }
         this.aspect = Math.min(this.cw / this.w, this.ch / this.h);
-        that.scale = Math.sqrt(this.w * this.w + this.h * this.h) / 13;
+        // that.scale = Math.sqrt(this.w * this.w + this.h * this.h) / 13;
 
         this.renderer.setSize(this.cw * 2, this.ch * 2);
 
@@ -580,25 +580,25 @@
         this.__animate(this.running);
     }
 
-    this.dice_box.prototype.__selector_animate = function(threadid) {
-        var time = (new Date()).getTime();
-        var time_diff = (time - this.last_time) / 1000;
-        if (time_diff > 3) time_diff = that.frame_rate;
-        var angle_change = 0.3 * time_diff * Math.PI * Math.min(24000 + threadid - time, 6000) / 6000;
-        if (angle_change < 0) this.running = false;
-        for (var i in this.dices) {
-            this.dices[i].rotation.y += angle_change;
-            this.dices[i].rotation.x += angle_change / 4;
-            this.dices[i].rotation.z += angle_change / 10;
-        }
-        this.last_time = time;
-        this.renderer.render(this.scene, this.camera);
-        if (this.running == threadid) {
-            (function(t, tid) {
-                requestAnimationFrame(function() { t.__selector_animate(tid); });
-            })(this, threadid);
-        }
-    }
+    // this.dice_box.prototype.__selector_animate = function(threadid) {
+    //     var time = (new Date()).getTime();
+    //     var time_diff = (time - this.last_time) / 1000;
+    //     if (time_diff > 3) time_diff = that.frame_rate;
+    //     var angle_change = 0.3 * time_diff * Math.PI * Math.min(24000 + threadid - time, 6000) / 6000;
+    //     if (angle_change < 0) this.running = false;
+    //     for (var i in this.dices) {
+    //         this.dices[i].rotation.y += angle_change;
+    //         this.dices[i].rotation.x += angle_change / 4;
+    //         this.dices[i].rotation.z += angle_change / 10;
+    //     }
+    //     this.last_time = time;
+    //     this.renderer.render(this.scene, this.camera);
+    //     if (this.running == threadid) {
+    //         (function(t, tid) {
+    //             requestAnimationFrame(function() { t.__selector_animate(tid); });
+    //         })(this, threadid);
+    //     }
+    // }
 
     this.dice_box.prototype.search_dice_by_mouse = function(ev) {
         var m = $t.get_mouse_coords(ev);
@@ -618,8 +618,6 @@
         this.pane.position.set(0, 0, 1);
         this.scene.add(this.pane);
 
-        var mouse_captured = false;
-
         for (var i = 0, pos = -3; i < that.known_types.length; ++i, ++pos) {
             var dice = $t.dice['create_' + that.known_types[i]]();
             dice.position.set(pos * step, 0, step * 0.5);
@@ -630,8 +628,7 @@
 
         this.running = (new Date()).getTime();
         this.last_time = 0;
-        if (this.animate_selector) this.__selector_animate(this.running);
-        else this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     function throw_dices(box, vector, boost, dist, notation_getter, before_roll, after_roll) {
@@ -657,12 +654,14 @@
 
     this.dice_box.prototype.bind_mouse = function(container, notation_getter, before_roll, after_roll) {
         var box = this;
-        $t.bind(container, ['mousedown', 'touchstart'], function(ev) {
+        $t.one(container, ['mousedown', 'touchstart'], function(ev) {
             ev.preventDefault();
-            box.mouse_time = (new Date()).getTime();
-            box.mouse_start = $t.get_mouse_coords(ev);
+            if (!box.rolling) {
+                box.mouse_time = (new Date()).getTime();
+                box.mouse_start = $t.get_mouse_coords(ev);
+            }
         });
-        $t.bind(container, ['mouseup', 'touchend'], function(ev) {
+        $t.one(container, ['mouseup', 'touchend'], function(ev) {
             if (box.rolling) return;
             if (box.mouse_start == undefined) return;
             ev.stopPropagation();
@@ -682,7 +681,7 @@
 
     this.dice_box.prototype.bind_throw = function(button, notation_getter, before_roll, after_roll) {
         var box = this;
-        $t.bind(button, ['mouseup', 'touchend'], function(ev) {
+        $t.one(button, ['mouseup', 'touchend'], function(ev) {
             ev.stopPropagation();
             box.start_throw(notation_getter, before_roll, after_roll);
         });
