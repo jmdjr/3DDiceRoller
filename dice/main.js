@@ -23,11 +23,9 @@ function dice_initialize(container) {
         set.value = '0';
     });
 
-    var params = $t.get_url_params();
-
-    $t.dice.desk_color = 0x101010;
+    $t.dice.desk_color = 0x0f0f0f;
     $t.dice.use_shadows = true;
-    $t.dice.dice_color = '#000000';
+    $t.dice.dice_color = '#0f000f';
     $t.dice.label_color = '#ffffff';
 
     var box = new $t.dice.dice_box(canvas, { w: 500, h: 300 });
@@ -52,8 +50,6 @@ function dice_initialize(container) {
     }
 
     function after_roll(notation, result) {
-        if (params.chromakey || params.noresult) return;
-
         var res = 0;
         if (result.length >= 1) res = (result.reduce(function(s, a) { return s + a; }));
         label.innerHTML = res;
