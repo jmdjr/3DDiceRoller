@@ -10,12 +10,9 @@ function dice_initialize(container) {
     var set = $t.id('set');
     var selector_div = $t.id('selector_div');
     var info_div = $t.id('info_div');
-    on_set_change();
 
     $t.dice.use_true_random = false;
 
-    function on_set_change(ev) { set.style.width = set.value.length + 3 + 'ex'; }
-    $t.bind(set, 'keyup', on_set_change);
     $t.bind(set, 'mousedown', function(ev) { ev.stopPropagation(); });
     $t.bind(set, 'mouseup', function(ev) { ev.stopPropagation(); });
     $t.bind(set, 'focus', function(ev) { $t.set(container, { class: '' }); });
@@ -24,7 +21,6 @@ function dice_initialize(container) {
     $t.bind($t.id('clear'), ['mouseup', 'touchend'], function(ev) {
         ev.stopPropagation();
         set.value = '0';
-        on_set_change();
     });
 
     var params = $t.get_url_params();

@@ -580,26 +580,6 @@
         this.__animate(this.running);
     }
 
-    // this.dice_box.prototype.__selector_animate = function(threadid) {
-    //     var time = (new Date()).getTime();
-    //     var time_diff = (time - this.last_time) / 1000;
-    //     if (time_diff > 3) time_diff = that.frame_rate;
-    //     var angle_change = 0.3 * time_diff * Math.PI * Math.min(24000 + threadid - time, 6000) / 6000;
-    //     if (angle_change < 0) this.running = false;
-    //     for (var i in this.dices) {
-    //         this.dices[i].rotation.y += angle_change;
-    //         this.dices[i].rotation.x += angle_change / 4;
-    //         this.dices[i].rotation.z += angle_change / 10;
-    //     }
-    //     this.last_time = time;
-    //     this.renderer.render(this.scene, this.camera);
-    //     if (this.running == threadid) {
-    //         (function(t, tid) {
-    //             requestAnimationFrame(function() { t.__selector_animate(tid); });
-    //         })(this, threadid);
-    //     }
-    // }
-
     this.dice_box.prototype.search_dice_by_mouse = function(ev) {
         var m = $t.get_mouse_coords(ev);
         var intersects = (new THREE.Raycaster(this.camera.position, 
